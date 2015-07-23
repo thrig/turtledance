@@ -97,7 +97,7 @@ int main(void)
     for (unsigned long i = 0; i < NUMCMDS; i++) {
         fprintf(stderr, "%d ", Stats[i]);
     }
-    fprintf(stderr, "\ninfo: C-c to stop ucblogo, \"bye\" to exit it.");
+    fprintf(stderr, "\ninfo: C-c to stop ucblogo, \"bye\" to exit it.\n");
 
     exit(EXIT_SUCCESS);
 }

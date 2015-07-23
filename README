@@ -1,8 +1,14 @@
 turtledance.
 
 Necessary ingredients include a C compiler, make, ucblogo, a source of
-data--/dev/random, code libraries, xxd on random system binaries, etc--
+data--/dev/random, code libraries, `hexdump -C` on binary date, etc--
 place this data into the "input" file--and time to fiddle around with
-the input and various parameters in the C code. Also, an image capture
-program such as scrot(1) and an image viewer such as feh(1) may be of
-some utility.
+the input and various parameters in the C code.
+
+Packages for OpenBSD:
+
+  pkg_add feh scrot ucblogo
+
+Example usage:
+
+  head -100 /dev/random > input; make
