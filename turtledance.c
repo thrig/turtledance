@@ -15,21 +15,33 @@
 #include <sysexits.h>
 #include <unistd.h>
 
+// PORTABILITY: Linux - install and include and compile with libbsd;
+// otherwise, altagoobingleduckgo for file:zhelper.h to see a (bad) use
+// of the (bad) rand() call, or so forth (or remove the rand code,
+// there's not much, and it is optional).
+#define randof(num)  (int) arc4random_uniform(num)
+
 // How many repeats to perform; depends on the value of some nearby
 // token, as modulated and with a floor as set by these values.
-#define REPEAT_MOD 16
-#define REPEAT_MIN 4
+// (these will need to be decreased for some inputs, and raised for
+// others, depending on the complexity of the input)
+#define REPEAT_MOD 8
+#define REPEAT_MIN 1
 
 // Commands to emit for not-REPEAT bits of the tree; the Mods allow
 // the various values to be reduced into a suitable set, e.g. there
 // only being 16 colors, or what. FD/BK change the scale of the
 // graph, as these indicate how far the turtle will move.
 #define NUMCMDS 5
-const int Mods[NUMCMDS] = { 7, 60, 60, 16, 3 };
+const int Mods[NUMCMDS] = { 17, 29, 29, 16, 7 };
 const int Mult[NUMCMDS] = { 0, 0, 0, 0, 0 };
 const bool Rand[NUMCMDS] = { 0, 0, 0, 0, 0 };
+
+// another command to try is LABEL though that might require special
+// handling to get the desired characters printed
 const char *Commands[NUMCMDS] = { "FD", "RT", "LT", "SETPC", "BK" };
 
+unsigned long Node_Count;
 unsigned long Stats[NUMCMDS];
 
 bool Pen_Up;
@@ -66,7 +78,7 @@ int main(void)
             // braces cause repeat statements around whatever is contained
             // by them
             n = mknode(c);
-            n->value = EOF;
+            //n->value = EOF;
             Cur_Node->child = n;
             n->parent = Cur_Node;
             Cur_Node = n;
@@ -81,7 +93,8 @@ int main(void)
             break;
 
         default:
-            if (c == prev_c) break;
+            if (c == prev_c)
+                break;
             n = mknode(c);
             Cur_Node->next = n;
             n->prev = Cur_Node;
@@ -93,9 +106,9 @@ int main(void)
     printf("#!/usr/bin/env logo\nCS\nHT\n");
     treewalk(Tree);
 
-    fprintf(stderr, "info: cmd stats ");
+    fprintf(stderr, "info: cmd stats nodes=%lu ", Node_Count);
     for (unsigned long i = 0; i < NUMCMDS; i++) {
-        fprintf(stderr, "%d ", Stats[i]);
+        fprintf(stderr, "%lu ", Stats[i]);
     }
     fprintf(stderr, "\ninfo: C-c to stop ucblogo, \"bye\" to exit it.\n");
 
@@ -114,6 +127,8 @@ struct node *mknode(int value)
     n->parent = NULL;
     n->child = NULL;
     n->value = value;
+
+    Node_Count++;
 
     return n;
 }
@@ -161,7 +176,14 @@ void treewalk(struct node *n)
             // need pen up here unless you want long lines as the turtle
             // resets back to where this repeat started at...
             printf("PENUP\n");
-            printf("SETPOS MY.POS\n");
+
+            // restore whence started this repeat
+            //printf("SETPOS MY.POS\n");
+            // another option is to randomize or otherwise determine a
+            // new location to jump to
+            printf("SETPOS (LIST %d %d)\n", (n->value & 15) * 15,
+                   ((n->value >> 4) & 15) * 15);
+
             //printf("FILL\n");
             Pen_Up = true;
         }
@@ -179,11 +201,12 @@ void treewalk(struct node *n)
             if (Mult[cmdidx] != 0)
                 v *= Mult[cmdidx];
             if (Rand[cmdidx])
-                v = 1 + arc4random_uniform(v);
+                v = 1 + randof(v);
             printf("%s %d\n", Commands[cmdidx], v);
 
             // this seems beneficial
-            if (cmdidx == 0) printf("LEFT 1\n");
+            if (cmdidx == 0)
+                printf("LEFT 1\n");
 
             Stats[cmdidx]++;
         }

@@ -11,4 +11,15 @@ Packages for OpenBSD:
 
 Example usage:
 
-  head -100 /dev/random > input; make
+  dd if=/dev/random of=input bs=512 count=3; make
+
+Favorable results tile, so may be suitable as e.g. a desktop
+background, assuming OpenBSD and zsh with setopt EXTENDED_GLOB, one
+might select and set those via:
+
+  scrot -s; feh --bg-tile *.png(om[1])
+
+In particular, the code will favor input braced with ([{< pairs which
+cause the data within to be repeated on. Each character of input
+otherwise has an associated value, and various LOGO actions carried out
+depending on the value.
