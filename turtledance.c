@@ -25,7 +25,7 @@
 // token, as modulated and with a floor as set by these values.
 // (these will need to be decreased for some inputs, and raised for
 // others, depending on the complexity of the input)
-#define REPEAT_MOD 8
+#define REPEAT_MOD 4
 #define REPEAT_MIN 1
 
 // Commands to emit for not-REPEAT bits of the tree; the Mods allow
@@ -33,7 +33,7 @@
 // only being 16 colors, or what. FD/BK change the scale of the
 // graph, as these indicate how far the turtle will move.
 #define NUMCMDS 5
-const int Mods[NUMCMDS] = { 17, 29, 29, 16, 7 };
+const int Mods[NUMCMDS] = { 7, 1, 3, 16, 3 };
 const int Mult[NUMCMDS] = { 0, 0, 0, 0, 0 };
 const bool Rand[NUMCMDS] = { 0, 0, 0, 0, 0 };
 
@@ -176,16 +176,19 @@ void treewalk(struct node *n)
             // need pen up here unless you want long lines as the turtle
             // resets back to where this repeat started at...
             printf("PENUP\n");
+            Pen_Up = true;
 
             // restore whence started this repeat
             //printf("SETPOS MY.POS\n");
             // another option is to randomize or otherwise determine a
-            // new location to jump to
-            printf("SETPOS (LIST %d %d)\n", (n->value & 15) * 15,
-                   ((n->value >> 4) & 15) * 15);
+            // new location to jump to (produces circles in-place)
+            printf("SETPOS (LIST %d %d)\n", (n->value & 15) * 15 - 100,
+                   ((n->value >> 4) & 15) * 15 - 100);
+            // or disable both, turtle will thus wander...
 
+            // unhappy results if using XQuartz.app and remote-X11 to
+            // OpenBSD box (as MacPorts ucblogo segfaults)
             //printf("FILL\n");
-            Pen_Up = true;
         }
     } else {
         if (n->value != EOF) {
