@@ -33,9 +33,9 @@
 // only being 16 colors, or what. FD/BK change the scale of the
 // graph, as these indicate how far the turtle will move.
 #define NUMCMDS 5
-const int Mods[NUMCMDS] = { 7, 1, 3, 16, 3 };
-const int Mult[NUMCMDS] = { 0, 0, 0, 0, 0 };
-const bool Rand[NUMCMDS] = { 0, 0, 0, 0, 0 };
+const int Mods[NUMCMDS] = { 3, 7, 59, 16, 3 };
+const int Mult[NUMCMDS] = { 2, 0, 0, 0, 0 };
+const bool Rand[NUMCMDS] = { 1, 0, 0, 0, 1 };
 
 // another command to try is LABEL though that might require special
 // handling to get the desired characters printed
@@ -59,7 +59,7 @@ struct node *Tree, *Cur_Node;
 
 struct node *mknode(int value);
 struct node *parent(struct node *n);
-void treewalk(struct node *n);
+void treewalk(struct node *n, int depth);
 
 int main(void)
 {
@@ -104,7 +104,8 @@ int main(void)
     }
 
     printf("#!/usr/bin/env logo\nCS\nHT\n");
-    treewalk(Tree);
+    printf("MAKE \"MY.POS POS\n");
+    treewalk(Tree, 0);
 
     fprintf(stderr, "info: cmd stats nodes=%lu ", Node_Count);
     for (unsigned long i = 0; i < NUMCMDS; i++) {
@@ -153,7 +154,7 @@ struct node *parent(struct node *n)
     return cur;
 }
 
-void treewalk(struct node *n)
+void treewalk(struct node *n, int depth)
 {
     bool pen;
     int cmdidx, v, rep;
@@ -163,13 +164,12 @@ void treewalk(struct node *n)
             printf("MAKE \"MY.POS POS\n");
             //printf("PENDOWN\n");
             Pen_Up = false;
-            rep = abs(n->value % REPEAT_MOD) + REPEAT_MIN;
-            if (rep < 1)
-                rep = 1;
+            rep = abs((n->value + depth) % REPEAT_MOD) + REPEAT_MIN;
+            if (rep < 1) rep = 1;
             printf("REPEAT %d [", rep);
         }
 
-        treewalk(n->child);
+        treewalk(n->child, depth + 1);
 
         if (n->value != EOF) {
             printf("]\n");
@@ -182,8 +182,8 @@ void treewalk(struct node *n)
             //printf("SETPOS MY.POS\n");
             // another option is to randomize or otherwise determine a
             // new location to jump to (produces circles in-place)
-            printf("SETPOS (LIST %d %d)\n", (n->value & 15) * 15 - 100,
-                   ((n->value >> 4) & 15) * 15 - 100);
+            printf("SETPOS (LIST %d %d)\n", (n->value & 15) * 30 - 225,
+                   ((n->value >> 3) & 15) * 30 - 225);
             // or disable both, turtle will thus wander...
 
             // unhappy results if using XQuartz.app and remote-X11 to
@@ -197,24 +197,21 @@ void treewalk(struct node *n)
                 printf("%s\n", pen ? "PENUP" : "PENDOWN");
                 Pen_Up = pen;
             }
-            cmdidx = abs(n->value % NUMCMDS);
+            cmdidx = abs((n->value + depth) % NUMCMDS);
             v = abs(n->value);
-            if (Mods[cmdidx] > 0)
-                v %= Mods[cmdidx];
-            if (Mult[cmdidx] != 0)
-                v *= Mult[cmdidx];
-            if (Rand[cmdidx])
-                v = 1 + randof(v);
+            if (Mods[cmdidx] > 0) v %= Mods[cmdidx];
+            if (Mult[cmdidx] != 0) v *= Mult[cmdidx];
+            if (Rand[cmdidx]) v = 1 + randof(v);
+            if (cmdidx !=3) v += depth;
             printf("%s %d\n", Commands[cmdidx], v);
 
             // this seems beneficial
-            if (cmdidx == 0)
-                printf("LEFT 1\n");
+            //if (cmdidx == 0) printf("LEFT 1\n");
 
             Stats[cmdidx]++;
         }
     }
 
     if (n->next != NULL)
-        treewalk(n->next);
+        treewalk(n->next, depth);
 }
