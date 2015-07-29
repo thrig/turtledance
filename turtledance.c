@@ -25,21 +25,21 @@
 // token, as modulated and with a floor as set by these values.
 // (these will need to be decreased for some inputs, and raised for
 // others, depending on the complexity of the input)
-#define REPEAT_MOD 4
-#define REPEAT_MIN 1
+#define REPEAT_MOD 2
+#define REPEAT_MIN 3
 
 // Commands to emit for not-REPEAT bits of the tree; the Mods allow
 // the various values to be reduced into a suitable set, e.g. there
 // only being 16 colors, or what. FD/BK change the scale of the
 // graph, as these indicate how far the turtle will move.
-#define NUMCMDS 5
-const int Mods[NUMCMDS] = { 3, 7, 59, 16, 3 };
-const int Mult[NUMCMDS] = { 2, 0, 0, 0, 0 };
-const bool Rand[NUMCMDS] = { 1, 0, 0, 0, 1 };
+#define NUMCMDS 6
+const int Mods[NUMCMDS] = { 3, 7, 17, 16, 3, 3 };
+const int Mult[NUMCMDS] = { 0, 0, 0, 0, 0, 0 };
+const bool Rand[NUMCMDS] = { 1, 0, 0, 0, 1, 1 };
 
 // another command to try is LABEL though that might require special
 // handling to get the desired characters printed
-const char *Commands[NUMCMDS] = { "FD", "RT", "LT", "SETPC", "BK" };
+const char *Commands[NUMCMDS] = { "FD", "RT", "LT", "SETPC", "BK", "SETPENSIZE" };
 
 unsigned long Node_Count;
 unsigned long Stats[NUMCMDS];
@@ -160,10 +160,8 @@ void treewalk(struct node *n, int depth)
     int cmdidx, v, rep;
 
     if (n->child != NULL) {
+        printf("MAKE \"MY.POS POS\n");
         if (n->value != EOF) {
-            printf("MAKE \"MY.POS POS\n");
-            //printf("PENDOWN\n");
-            Pen_Up = false;
             rep = abs((n->value + depth) % REPEAT_MOD) + REPEAT_MIN;
             if (rep < 1) rep = 1;
             printf("REPEAT %d [", rep);
@@ -182,8 +180,8 @@ void treewalk(struct node *n, int depth)
             //printf("SETPOS MY.POS\n");
             // another option is to randomize or otherwise determine a
             // new location to jump to (produces circles in-place)
-            printf("SETPOS (LIST %d %d)\n", (n->value & 15) * 30 - 225,
-                   ((n->value >> 3) & 15) * 30 - 225);
+            printf("SETPOS (LIST %d %d)\n", (n->value & 15) * 37 - 263,
+                   ((n->value >> 4) & 15) * 31 - 241);
             // or disable both, turtle will thus wander...
 
             // unhappy results if using XQuartz.app and remote-X11 to
@@ -197,16 +195,16 @@ void treewalk(struct node *n, int depth)
                 printf("%s\n", pen ? "PENUP" : "PENDOWN");
                 Pen_Up = pen;
             }
-            cmdidx = abs((n->value + depth) % NUMCMDS);
-            v = abs(n->value);
+            cmdidx = abs(n->value % NUMCMDS);
+            v = abs(n->value + depth);
             if (Mods[cmdidx] > 0) v %= Mods[cmdidx];
             if (Mult[cmdidx] != 0) v *= Mult[cmdidx];
             if (Rand[cmdidx]) v = 1 + randof(v);
-            if (cmdidx !=3) v += depth;
+            if (cmdidx == 0) v += depth;
+            if (v > 17) v = 17;
             printf("%s %d\n", Commands[cmdidx], v);
 
-            // this seems beneficial
-            //if (cmdidx == 0) printf("LEFT 1\n");
+//          if (cmdidx == 0 && randof(10) < 1) printf("SETHEADING (SUM (TOWARDS MY.POS) 7)\n");
 
             Stats[cmdidx]++;
         }
