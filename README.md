@@ -1,5 +1,3 @@
-turtledance.
-
 Necessary ingredients include a C compiler, make, ucblogo, a source of
 data--/dev/random, code libraries, `hexdump -C` on binary date, etc--
 place this data into the "input" file--and time to fiddle around with
@@ -23,3 +21,5 @@ In particular, the code will favor input braced with ([{< pairs which
 cause the data within to be repeated on. Each character of input
 otherwise has an associated value, and various LOGO actions carried out
 depending on the value.
+
+![The so-called art dealer](atsidshu.png)
