@@ -5,14 +5,14 @@ the input and various parameters in the C code.
 
 Packages for OpenBSD:
 
-  pkg_add feh scrot ucblogo
+  doas pkg_add feh scrot ucblogo
 
 Example usage:
 
   dd if=/dev/random of=input bs=512 count=3; make
 
 Favorable results tile, so may be suitable as e.g. a desktop
-background, assuming OpenBSD and zsh with setopt EXTENDED_GLOB, one
+background, assuming OpenBSD and ZSH with setopt EXTENDED_GLOB, one
 might select and set those via:
 
   scrot -s; feh --bg-tile *.png(om[1])
@@ -22,4 +22,4 @@ cause the data within to be repeated on. Each character of input
 otherwise has an associated value, and various LOGO actions carried out
 depending on the value.
 
-![The so-called art dealer](atsidshu.png)
+![The so-called art dealer](samples/mnpothhtp.png)

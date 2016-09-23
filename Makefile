@@ -6,3 +6,6 @@ dodance: turtledance input
 
 turtledance: turtledance.c
 	$(CC) -std=c99 -g turtledance.c -o turtledance
+
+clean:
+	@-rm runme turtledance >/dev/null 2>&1
