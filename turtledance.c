@@ -17,15 +17,15 @@
 
 // How many repeats to perform; depends on the value of some nearby
 // token, as modulated and with a floor as set by these values.
-#define REPEAT_MOD 16
-#define REPEAT_MIN 4
+#define REPEAT_MOD 13
+#define REPEAT_MIN 7
 
 // Commands to emit for not-REPEAT bits of the tree; the Mods allow
 // the various values to be reduced into a suitable set, e.g. there
 // only being 16 colors, or what. FD/BK change the scale of the
 // graph, as these indicate how far the turtle will move.
 #define NUMCMDS 5
-const int Mods[NUMCMDS] = { 7, 60, 60, 16, 3 };
+const int Mods[NUMCMDS] = { 7, 60, -30, 16, 3 };
 const int Mult[NUMCMDS] = { 0, 0, 0, 0, 0 };
 const bool Rand[NUMCMDS] = { 0, 0, 0, 0, 0 };
 const char *Commands[NUMCMDS] = { "FD", "RT", "LT", "SETPC", "BK" };
